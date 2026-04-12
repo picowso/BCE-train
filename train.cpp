@@ -36,7 +36,7 @@ dbl d_act(dbl x) {
 }
 
 // we learning cuh we so intelligent
-dbl alpha = 0.01;
+dbl alpha = 0.003;
 dbl feed_forward() {
     dbl z1[HL1_SIZE], a1[HL1_SIZE];
     for(int i = 0; i < HL1_SIZE; i++) {
@@ -105,19 +105,12 @@ int main() {
     for(int i = 0; i < HL1_SIZE; i++) output_w[i] = dist(rng);
     output_b = dist(rng);
 
-    // READ:
+    // TRAIN:
     vector<pair<string, int>> data;
     vector<string> inp;
     ifstream dt("data");
-    string u;
-    while(dt >> u) inp.pb(u);
-    data.resize(inp.size()/2);
-    for(int i = 0 ; i < inp.size() ; i++) {
-        if(i&1) data[i/2].second = stoi( inp[i] );
-        else data[i/2].first = inp[i];
-    }
-    
-    // TRAIN:
+    string str;
+    float eval;
     cout << "YAY" << endl;
     int store[1000];
     store['p'] = 0;
@@ -132,10 +125,12 @@ int main() {
     store['R'] = 3;
     store['Q'] = 4;
     store['K'] = 5;
-    for(int i = 0 ; i < data.size() ; i++) {
+    // READ+TRAIN:
+    int i = 0;
+    while(dt >> str >> eval) {
         // bool input[INPUT_SIZE];
         memset(input, 0, sizeof input);
-        string str = data[i].first;
+        // string str = data[i].first;
         int p = 0;
         int u = 0, j = 0, c = 1;
         for(; j < str.size() ; j++) {
@@ -151,34 +146,18 @@ int main() {
             }
 
             // cout << u << endl;
-            // lower = white
-            if(islower(str[j])) {
-                input[store[str[j]] * 64 + u] = 1;
-            }
-
-            else {
-                input[64 * 6 + store[str[j]] * 64 + u] = 1;
-            }
-
-            // if(str[j] == 'p') Board[u] = BP;
-            // else if(str[j] == 'n') Board[u] = BN;
-            // else if(str[j] == 'b') Board[u] = BB;
-            // else if(str[j] == 'r') Board[u] = BR;
-            // else if(str[j] == 'q') Board[u] = BQ;
-            // else if(str[j] == 'k') Board[u] = BK;
-            // else if(str[j] == 'P') Board[u] = WP;
-            // else if(str[j] == 'N') Board[u] = WN;
-            // else if(str[j] == 'B') Board[u] = WB;
-            // else if(str[j] == 'R') Board[u] = WR;
-            // else if(str[j] == 'Q') Board[u] = WQ;
-            // else if(str[j] == 'K') Board[u] = WK;
+            // upper = white
+            if(isupper(str[j])) input[store[str[j]] * 64 + u] = 1;
+            else input[64 * 6 + store[str[j]] * 64 + u] = 1;
+            
             u++;
         }
 
-        backprop(data[i].second);
-        if((i&1023) == 0) cout << "GAME #: " << i << ", LOSS: " << loss(data[i].second) << endl;
+        backprop(eval);
+        if((i&1023) == 0) cout << "GAME #: " << i << ", LOSS: " << loss(eval) << endl;
+        i++;
     }
-
+    
     // (quan + feed to NNUE)
     // OUTPUT:
     cout << INPUT_SIZE << " " << HL1_SIZE << endl;
