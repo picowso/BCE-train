@@ -5,6 +5,11 @@
 #include <random>
 #include <cstring>
 #include <fstream>
+#include <vector>
+#include <string>
+#include <utility>
+#include <cctype>
+
 using namespace std;
 using dbl = double;
 #define INPUT_SIZE 768
@@ -146,6 +151,7 @@ int main() {
             }
 
             // cout << u << endl;
+            // lower = white
             if(islower(str[j])) {
                 input[store[str[j]] * 64 + u] = 1;
             }
