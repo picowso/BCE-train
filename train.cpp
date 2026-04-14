@@ -16,27 +16,24 @@ using dbl = double;
 #define HL1_SIZE 128
 #define pb push_back
 
+// const int epoch = 3;
 dbl hidden1_w[INPUT_SIZE][HL1_SIZE];
 dbl hidden1_b[HL1_SIZE];
 dbl output_w[HL1_SIZE];
 dbl output_b;
 dbl input[INPUT_SIZE];
 
-// SCRelu
+// let's just use relu gang
 dbl act(dbl x) {
-    if(x <= 0.) return 0.;
-    if(x >= 1.) return 1.;
-    return x*x;
+    return max(0.0, x);
 }
 
 dbl d_act(dbl x) {
-    if(x <= 0.) return 0.;
-    if(x >= 1.) return 0.;
-	return 2.*x;
+    return x > 0 ? 1.0 : 0.0;
 }
 
 // we learning cuh we so intelligent
-dbl alpha = 0.003;
+dbl alpha = 0.0045;
 dbl feed_forward() {
     dbl z1[HL1_SIZE], a1[HL1_SIZE];
     for(int i = 0; i < HL1_SIZE; i++) {
@@ -94,7 +91,7 @@ void backprop(dbl ex) {
 
 int main() {
 	mt19937 rng(std::random_device{}());
-    uniform_real_distribution<dbl> dist(-0.05, 0.05);
+    uniform_real_distribution<dbl> dist(-0.1, 0.1);
     for(int j = 0; j < INPUT_SIZE; j++) {
         for(int i = 0; i < HL1_SIZE; i++) {
         	hidden1_w[j][i] = dist(rng);
@@ -108,7 +105,8 @@ int main() {
     // TRAIN:
     vector<pair<string, int>> data;
     vector<string> inp;
-    ifstream dt("data");
+    string nnue; cin >> nnue;
+    ifstream dt(nnue);
     string str;
     float eval;
     cout << "YAY" << endl;
@@ -153,8 +151,11 @@ int main() {
             u++;
         }
 
+        // int epoch = max(1, rand()%4);
+        // for(int j = 0 ; j < epoch ; j++) backprop(eval);
         backprop(eval);
         if((i&1023) == 0) cout << "GAME #: " << i << ", LOSS: " << loss(eval) << endl;
+        // if(i > 50'000) break;
         i++;
     }
     
